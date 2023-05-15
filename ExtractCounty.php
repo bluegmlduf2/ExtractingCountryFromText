@@ -2,89 +2,107 @@
 
 namespace ExtractingCountryFromText;
 
-require_once 'Countries.php';
+require_once "Countries.php";
 
-// TODO 언어별지원 
-// TODO stefangabos/world_countries 컴포저추가
 class ExtractCounty
 {
-    private string $searchWord;
-    private string $pattern;
+    private string $searchWord; // The search keyword
+    private string $searcItem; // The item to search for (e.g., name, alpha2, alpha3)
+    private string $regPattern; // The regular expression pattern for searching the country list
+    private string $language; // The language to use for searching (default is English)
 
     /**
-     * initialization
+     * Constructor
      * 
-     * @param string $searchWord Country name to search for
-     * @param bool $patternType If true, search for results that match the country name completely; if false, search for results that match partially
+     * @param array $option Options for the search
+     * @throws \Exception if searchWord is empty
      */
-    public function __construct(string $searchWord, bool $patternType = false)
+    public function __construct(array $option)
     {
-        $this->searchWord = $searchWord;
-        $this->pattern = $this->getPattren($patternType ? 'perfect' : 'partial');
+        if (empty($option["searchWord"])) {
+            throw new \Exception("searchWord is required");
+        }
+
+        $this->searchWord = $option["searchWord"];
+        $this->searcItem = isset($option["searcItem"]) ? $option["searcItem"] : "name";
+        $this->regPattern = $this->getRegPattern($option);
+        $this->language = isset($option["language"]) ? $option["language"] : "en";
     }
 
     /**
      * Get country names that match your search results
+     * 
+     * @return array Matched country names array
+     * @throws \Exception if no results are found
      */
-    public function getCountryFullName()
+    public function getCountryFullName(): array
     {
-        return $this->getCountryData('name');
+        return $this->getCountryData("name");
     }
 
     /**
-     * Get country Two Letter that match your search results
+     * Get country two letter codes that match your search results
+     * 
+     * @return array Matched country two letter codes array
+     * @throws \Exception if no results are found
      */
-    public function getCountryTwoLetter()
+    public function getCountryTwoLetter(): array
     {
-        return $this->getCountryData('alpha2');
+        return $this->getCountryData("alpha2");
     }
 
     /**
-     * Get country Three Letter that match your search results
+     * Get country three letter codes that match your search results
+     * 
+     * @return array Matched country three letter codes array
+     * @throws \Exception if no results are found
      */
-    public function getCountryThreeLetter()
+    public function getCountryThreeLetter(): array
     {
-        return $this->getCountryData('alpha3');
+        return $this->getCountryData("alpha3");
     }
 
     /**
      * Get data with matching country names
      * 
-     * @param string $dataType Types of data to acquire
-     * @return null|array Matched Country Data array
-     * 
-     * @throws Exception If their is no return data
+     * @param string $dataType Type of data to acquire
+     * @return array Matched country data array
+     * @throws \Exception if no results are found
      */
-    private function getCountryData(string $dataType): null|array
+    private function getCountryData(string $dataType): array
     {
-        $filteredCountryList = array_filter(COUNTRY_LIST, function ($value) use ($dataType) {
-            if (preg_match($this->pattern, $value['name'])) {
-                return $value[$dataType];
-            }
+        // Filter the country list based on the search keyword and item to search for
+        $filteredCountryList = array_filter(COUNTRY_LIST, function ($value) {
+            return preg_match($this->regPattern, $value[$this->searcItem]['en']);
         });
 
+        // Throw an exception if no results are found
         if (empty($filteredCountryList)) {
             throw new \Exception("No result");
         }
 
-        return array_column($filteredCountryList, $dataType);
+        // Return an array of the specified data type for the matched country data
+        return array_column(array_map(function ($item) use ($dataType) {
+            return $dataType === 'name' ? $item['name'][$this->language] : $item[$dataType];
+        }, $filteredCountryList), null);
     }
 
     /**
-     * Returns a regular expression pattern
+     * Returns a regular expression pattern for searching the country list
      * 
-     * @param string $pattrenType Type of data to find
-     * @return string regular expression pattern string
+     * @param bool $fullSearch Determines whether to search for exact or partial matches
+     * @return string Regular expression pattern string
      */
-    private function getPattren(string $patternType)
+    private function getRegPattern(array $option): string
     {
-        switch ($patternType) {
-            case 'perfect':
-                return "/^\s*$this->searchWord$/i";
-                break;
-            case 'partial':
-                return "/\s*$this->searchWord/i";
-                break;
+        $fullSearch = isset($option["fullSearch"]) ? $option["fullSearch"] : false;
+
+        if ($fullSearch) {
+            // search for exact matches
+            return "/^\s*$this->searchWord$/i";
+        } else {
+            // search for partial matches
+            return "/\s*$this->searchWord/i";
         }
     }
 }
