@@ -14,7 +14,11 @@ class ExtractCounty
     /**
      * Constructor
      * 
-     * @param array $option Options for the search
+     * @param array $option An array of options for the search. The following keys are supported:
+     *                      - "searchWord" (required): The search term to look for
+     *                      - "searcItem": The item to search for (default is "name")
+     *                      - "fullSearch": Determines whether to search for exact or partial matches (default is false)
+     *                      - "language": The language to use for the search (default is "en")
      * @throws \Exception if searchWord is empty
      */
     public function __construct(array $option)
