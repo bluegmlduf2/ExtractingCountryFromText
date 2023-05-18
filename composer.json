@@ -1,0 +1,16 @@
+{
+    "name": "yoon/extracting-country-from-text",
+    "description": "Applications that extract country names from strings",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "ExtractingCountryFromText\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Wally yoon"
+        }
+    ],
+    "require": {}
+}
