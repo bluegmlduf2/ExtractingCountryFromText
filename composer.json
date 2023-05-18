@@ -1,5 +1,5 @@
 {
-    "name": "yoon/extracting-country-from-text",
+    "name": "countrytext/extracting-country-from-text",
     "description": "Applications that extract country names from strings",
     "license": "MIT",
     "autoload": {
@@ -9,7 +9,9 @@
     },
     "authors": [
         {
-            "name": "Wally yoon"
+            "name": "Wally yoon",
+            "homepage": "https://github.com/bluegmlduf2",
+            "role": "Developer"
         }
     ],
     "require": {}
