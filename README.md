@@ -15,7 +15,7 @@ $country = new ExtractCounty([
     "searchWord" => "korea", // required
     "searcItem" => "name", // optional
     "fullSearch" => false, // optional
-    "language" => "ko", // optional
+    "language" => "en", // optional
 ]);
 
 $country->getCountryFullName(); // Array ( [0] => Korea (Democratic People's Republic of) [1] => Korea, Republic of )
